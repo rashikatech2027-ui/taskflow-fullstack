@@ -24,11 +24,31 @@ app.post('/api/tasks', (req, res) => {
 
 app.patch('/api/tasks/:id', (req, res) => {
   const task = tasks.find(t => t.id === Number(req.params.id));
-  if (!task) return res.status(404).json({ message: 'Task not found' });
-  task.completed = Boolean(req.body.completed);
+
+  if (!task) {
+    return res.status(404).json({ message: 'Task not found' });
+  }
+
+  // Update title if provided
+  if (req.body.title !== undefined) {
+    const title = String(req.body.title).trim();
+
+    if (!title) {
+      return res.status(400).json({
+        message: 'Task title cannot be empty',
+      });
+    }
+
+    task.title = title;
+  }
+
+  // Update completed status if provided
+  if (req.body.completed !== undefined) {
+    task.completed = Boolean(req.body.completed);
+  }
+
   res.json(task);
 });
-
 app.delete('/api/tasks/:id', (req, res) => {
   const id = Number(req.params.id);
   const exists = tasks.some(t => t.id === id);
